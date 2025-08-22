@@ -6,6 +6,8 @@
 [![Discord](https://img.shields.io/discord/1351569878116470928?logo=discord&logoColor=white&label=discord&color=white)](https://discord.gg/gw9UpFUhyY)
 [![PyPI version](https://badge.fury.io/py/browser-use-mcp-server.svg)](https://badge.fury.io/py/browser-use-mcp-server)
 
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/co-browser/browser-use-mcp-server)](https://archestra.ai/mcp-catalog/co-browser__browser-use-mcp-server)
+
 **An MCP server that enables AI agents to control web browsers using
 [browser-use](https://github.com/browser-use/browser-use).**
 
