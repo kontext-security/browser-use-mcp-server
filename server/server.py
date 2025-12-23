@@ -42,6 +42,7 @@ from langchain_openai import ChatOpenAI
 # MCP server components
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
+from mcp.types import ToolAnnotations
 from pythonjsonlogger import jsonlogger
 from starlette.applications import Starlette
 from starlette.routing import Mount, Route
@@ -610,6 +611,11 @@ def create_mcp_server(
                             },
                         },
                     },
+                    annotations=ToolAnnotations(
+                        title="Browser Use",
+                        destructiveHint=True,
+                        openWorldHint=True,
+                    ),
                 ),
                 types.Tool(
                     name="browser_get_result",
@@ -624,6 +630,10 @@ def create_mcp_server(
                             }
                         },
                     },
+                    annotations=ToolAnnotations(
+                        title="Browser Get Result",
+                        readOnlyHint=True,
+                    ),
                 ),
             ]
         else:
@@ -645,6 +655,11 @@ def create_mcp_server(
                             },
                         },
                     },
+                    annotations=ToolAnnotations(
+                        title="Browser Use",
+                        destructiveHint=True,
+                        openWorldHint=True,
+                    ),
                 ),
                 types.Tool(
                     name="browser_get_result",
@@ -659,6 +674,10 @@ def create_mcp_server(
                             }
                         },
                     },
+                    annotations=ToolAnnotations(
+                        title="Browser Get Result",
+                        readOnlyHint=True,
+                    ),
                 ),
             ]
 
