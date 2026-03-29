@@ -38,6 +38,10 @@ CHROME_PATH=optional/path/to/chrome
 PATIENT=false  # Set to true if API calls should wait for task completion
 ```
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/co-browser-browser-use-mcp-server).
+
 ## Installation
 
 ```bash
