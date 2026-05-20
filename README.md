@@ -2,16 +2,16 @@
 
 <div align="center">
 
-[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/cobrowser.svg?style=social&label=Follow%20%40cobrowser)](https://x.com/cobrowser)
+[![X](https://img.shields.io/badge/follow-%40kontextsecurity-152822?style=social)](https://x.com/kontextsecurity)
 [![Discord](https://img.shields.io/discord/1351569878116470928?logo=discord&logoColor=white&label=discord&color=white)](https://discord.gg/gw9UpFUhyY)
 [![PyPI version](https://badge.fury.io/py/browser-use-mcp-server.svg)](https://badge.fury.io/py/browser-use-mcp-server)
 
 **An MCP server that enables AI agents to control web browsers using
 [browser-use](https://github.com/browser-use/browser-use).**
 
-> **🌐 Want to Vibe Browse the Web?** Open-source AI-powered web browser - [**Vibe Browser**](https://github.com/co-browser/vibe).
->
-> **🔗 Managing multiple MCP servers?** Simplify your development workflow with [agent-browser](https://github.com/co-browser/agent-browser)
+Maintained by [Kontext](https://kontext.security), the runtime authorization platform for tool-using AI agents.
+
+> **🔗 Managing multiple MCP servers?** Simplify your development workflow with [agent-browser](https://github.com/kontext-security/agent-browser)
 
 </div>
 
@@ -122,6 +122,10 @@ browser-use-mcp-server run server --port 8000 --stdio --proxy-port 9000
 - [x] **VNC Streaming**: Watch browser automation in real-time
 - [x] **Async Tasks**: Execute browser operations asynchronously
 
+## MCP security
+
+Browser automation gives agents a powerful tool boundary. Treat this server like any other MCP server that can reach external systems: scope credentials, review tool access, and add runtime authorization before connecting it to sensitive workflows. See Kontext's guide to [MCP security risks and best practices](https://kontext.security/content/mcp-security-risks-best-practices).
+
 ## Local Development
 
 To develop and test the package locally:
@@ -209,14 +213,14 @@ open https://news.ycombinator.com and return the top ranked article
 
 ## Support
 
-For issues or inquiries: [cobrowser.xyz](https://cobrowser.xyz)
+For issues or inquiries: [kontext.security](https://kontext.security)
 
 ## Star History
 
 <div align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=co-browser/browser-use-mcp-server&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=co-browser/browser-use-mcp-server&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=co-browser/browser-use-mcp-server&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kontext-security/browser-use-mcp-server&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kontext-security/browser-use-mcp-server&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kontext-security/browser-use-mcp-server&type=Date" />
   </picture>
 </div>
