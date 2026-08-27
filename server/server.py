@@ -22,7 +22,7 @@ import time
 import traceback
 import uuid
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Union
 
 # Third-party imports
 import click
@@ -30,14 +30,9 @@ import mcp.types as types
 import uvicorn
 
 # Browser-use library imports
-from browser_use import Agent
-from browser_use.browser.browser import Browser, BrowserConfig
-from browser_use.browser.context import BrowserContext, BrowserContextConfig
+from browser_use import Agent, BrowserSession, ChatOpenAI
+from browser_use.llm.base import BaseChatModel
 from dotenv import load_dotenv
-from langchain_core.language_models import BaseLanguageModel
-
-# LLM provider
-from langchain_openai import ChatOpenAI
 
 # MCP server components
 from mcp.server import Server
@@ -143,12 +138,12 @@ async def create_browser_context_for_task(
     window_width: int = CONFIG["DEFAULT_WINDOW_WIDTH"],
     window_height: int = CONFIG["DEFAULT_WINDOW_HEIGHT"],
     locale: str = CONFIG["DEFAULT_LOCALE"],
-) -> Tuple[Browser, BrowserContext]:
+) -> BrowserSession:
     """
-    Create a fresh browser and context for a task.
+    Create a fresh Browser Use session for a task.
 
-    This function creates an isolated browser instance and context
-    with proper configuration for a single task.
+    Browser Use 0.13 manages the browser and context through BrowserSession.
+    Keeping this function name preserves the package's existing public import.
 
     Args:
         chrome_path: Path to Chrome executable
@@ -157,42 +152,34 @@ async def create_browser_context_for_task(
         locale: Browser locale
 
     Returns:
-        A tuple containing the browser instance and browser context
+        A configured browser session. The Agent starts it on demand.
 
     Raises:
         Exception: If browser or context creation fails
     """
     try:
-        # Create browser configuration
-        browser_config = BrowserConfig(
-            extra_chromium_args=CONFIG["BROWSER_ARGS"],
-        )
+        # BrowserSession owns the CDP port, so do not pass the legacy flag that
+        # asked Playwright to pick a second debugging port.
+        browser_args = [
+            arg
+            for arg in CONFIG["BROWSER_ARGS"]
+            if not arg.startswith("--remote-debugging-port=")
+        ]
+        browser_args.append(f"--lang={locale}")
 
-        # Set chrome path if provided
-        if chrome_path:
-            browser_config.chrome_instance_path = chrome_path
-
-        # Create browser instance
-        browser = Browser(config=browser_config)
-
-        # Create context configuration
-        context_config = BrowserContextConfig(
-            wait_for_network_idle_page_load_time=0.6,
-            maximum_wait_page_load_time=1.2,
-            minimum_wait_page_load_time=0.2,
-            browser_window_size={"width": window_width, "height": window_height},
-            locale=locale,
+        return BrowserSession(
+            executable_path=chrome_path,
+            args=browser_args,
+            enable_default_extensions=False,
+            captcha_solver=False,
+            window_size={"width": window_width, "height": window_height},
             user_agent=CONFIG["DEFAULT_USER_AGENT"],
             highlight_elements=True,
-            viewport_expansion=0,
+            minimum_wait_page_load_time=0.2,
+            wait_for_network_idle_page_load_time=0.6,
         )
-
-        # Create context with the browser
-        context = BrowserContext(browser=browser, config=context_config)
-
-        return browser, context
     except Exception as e:
-        logger.error(f"Error creating browser context: {str(e)}")
+        logger.error(f"Error creating browser session: {str(e)}")
         raise
 
 
@@ -200,7 +187,7 @@ async def run_browser_task_async(
     task_id: str,
     url: str,
     action: str,
-    llm: BaseLanguageModel,
+    llm: BaseChatModel,
     window_width: int = CONFIG["DEFAULT_WINDOW_WIDTH"],
     window_height: int = CONFIG["DEFAULT_WINDOW_HEIGHT"],
     locale: str = CONFIG["DEFAULT_LOCALE"],
@@ -223,8 +210,7 @@ async def run_browser_task_async(
         window_height: Browser window height
         locale: Browser locale
     """
-    browser = None
-    context = None
+    browser_session = None
 
     try:
         # Update task status to running
@@ -278,19 +264,19 @@ async def run_browser_task_async(
         # Get Chrome path from environment if available
         chrome_path = os.environ.get("CHROME_PATH")
 
-        # Create a fresh browser and context for this task
-        browser, context = await create_browser_context_for_task(
+        # Create a fresh Browser Use session for this task
+        browser_session = await create_browser_context_for_task(
             chrome_path=chrome_path,
             window_width=window_width,
             window_height=window_height,
             locale=locale,
         )
 
-        # Create agent with the fresh context
+        # Create agent with the fresh session
         agent = Agent(
             task=f"First, navigate to {url}. Then, {action}",
             llm=llm,
-            browser_context=context,
+            browser_session=browser_session,
             register_new_step_callback=step_callback,
             register_done_callback=done_callback,
         )
@@ -349,10 +335,8 @@ async def run_browser_task_async(
     finally:
         # Clean up browser resources
         try:
-            if context:
-                await context.close()
-            if browser:
-                await browser.close()
+            if browser_session:
+                await browser_session.stop()
             logger.info(f"Browser resources for task {task_id} cleaned up")
         except Exception as e:
             logger.error(
@@ -399,7 +383,7 @@ async def cleanup_old_tasks() -> None:
 
 
 def create_mcp_server(
-    llm: BaseLanguageModel,
+    llm: BaseChatModel,
     task_expiry_minutes: int = CONFIG["DEFAULT_TASK_EXPIRY_MINUTES"],
     window_width: int = CONFIG["DEFAULT_WINDOW_WIDTH"],
     window_height: int = CONFIG["DEFAULT_WINDOW_HEIGHT"],
