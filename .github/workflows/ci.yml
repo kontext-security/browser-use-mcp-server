@@ -8,6 +8,10 @@ on:
   release:
     types: [published] # Trigger when a release is published
 
+# Read-only by default; build-and-publish sets the extra rights it needs itself.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}-${{
     github.event.pull_request.number || github.sha }}
